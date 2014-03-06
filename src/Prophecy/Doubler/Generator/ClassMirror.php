@@ -25,6 +25,9 @@ use ReflectionParameter;
  */
 class ClassMirror
 {
+
+    const MAGIC_CALL = '__call';
+
     private static $reflectableMethods = array(
         '__construct',
         '__destruct',
@@ -33,6 +36,8 @@ class ClassMirror
         '__toString',
         '__call',
     );
+
+    private $hasCall = false;
 
     /**
      * Reflects provided arguments into class node.
@@ -84,6 +89,16 @@ class ClassMirror
         return $node;
     }
 
+    /**
+     * Return if the class has the magic call method
+     *
+     * @return bool
+     */
+    public function hasMagicCall()
+    {
+        return $this->hasCall;
+    }
+
     private function reflectClassToNode(ReflectionClass $class, Node\ClassNode $node)
     {
         if (true === $class->isFinal()) {
@@ -103,6 +118,11 @@ class ClassMirror
         }
 
         foreach ($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+
+            if(self::MAGIC_CALL === $method->getName()) {
+                $this->hasCall = true;
+            }
+
             if (0 === strpos($method->getName(), '_')
                 && !in_array($method->getName(), self::$reflectableMethods)) {
                 continue;

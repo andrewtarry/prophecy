@@ -467,6 +467,50 @@ class ClassMirrorSpec extends ObjectBehavior
         $arguments = $method->getArguments();
         $arguments[0]->getTypeHint()->shouldBe('I\Simply\Am\Not');
     }
+
+    /**
+     * @param ReflectionClass $class
+     * @param ReflectionMethod $method
+     */
+    function it_should_report_if_the_class_has_the_magic_call_method($class, $method)
+    {
+        $method->getName()->willReturn('__call');
+        $method->isFinal()->willReturn(false);
+        $method->isProtected()->willReturn(false);
+        $method->isStatic()->willReturn(false);
+        $method->getParameters()->willReturn(array());
+
+        $class->getMethods(ReflectionMethod::IS_PUBLIC)->willReturn(array($method));
+        $class->getMethods(ReflectionMethod::IS_ABSTRACT)->willReturn(array());
+        $class->isInterface()->willReturn(false);
+        $class->isFinal()->willReturn(false);
+        $class->getName()->willReturn('SomeClass');
+
+        $this->reflect($class, array());
+        $this->hasMagicCall()->shouldReturn(true);
+    }
+
+    /**
+     * @param ReflectionClass $class
+     * @param ReflectionMethod $method
+     */
+    function it_should_report_false_if_the_class_has_not_got_the_magic_call_method($class, $method)
+    {
+        $method->getName()->willReturn('myMethod');
+        $method->isFinal()->willReturn(false);
+        $method->isProtected()->willReturn(false);
+        $method->isStatic()->willReturn(false);
+        $method->getParameters()->willReturn(array());
+
+        $class->getMethods(ReflectionMethod::IS_PUBLIC)->willReturn(array($method));
+        $class->getMethods(ReflectionMethod::IS_ABSTRACT)->willReturn(array());
+        $class->isInterface()->willReturn(false);
+        $class->isFinal()->willReturn(false);
+        $class->getName()->willReturn('SomeClass');
+
+        $this->reflect($class, array());
+        $this->hasMagicCall()->shouldReturn(false);
+    }
 }
 
 class OptionalDepsClass
